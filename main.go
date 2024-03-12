@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand/v2"
 	"strconv"
 
@@ -102,9 +101,7 @@ func (w *Word) Draw(points *int, word_l *[]*Word) {
 		copy_w := *word_l
 		for i := range len(*word_l) {
 			if w.word == copy_w[i].word {
-				fmt.Println("BEFORE: ", len(*word_l))
 				*word_l = append(copy_w[:i], copy_w[i+1:]...)
-				fmt.Println("AFTER: ", len(*word_l))
 				break
 			}
 		}
