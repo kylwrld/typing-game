@@ -196,19 +196,13 @@ func main() {
 			// create more words
 			if len(word_list_random) < 4 {
 				used_random = used_random[:0]
-				
-				for _, word := range word_list_random {
-					fmt.Println("BEFORE: ", word.x)
-				}
-				
+
 				for i := range word_list_random {
 					r := find_index(&word_list, word_list_random[i])
 					used_random = append(used_random, r)
 				}
 				
 				randomize(len(word_list)-len(used_random), &word_list, &used_random, &word_list_random)
-				fmt.Println("aqui2")
-				
 				started = false
 			}
 			
@@ -222,7 +216,7 @@ func main() {
 							spacing += 200
 						}
 					} else {
-						if i > 3 {								
+						if i > 2 {
 							w.x -= 300 + spacing
 							spacing += 200
 						}
@@ -230,10 +224,6 @@ func main() {
 				}
 				first_time = false
 				started = true
-
-				for _, word := range word_list_random {
-					fmt.Println("AFTER: ", word.x)
-				}
 			}
 	
 			// checks if outside screen
