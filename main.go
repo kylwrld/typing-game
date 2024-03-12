@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"strconv"
 
@@ -92,7 +93,7 @@ func (w *Word) Draw(points *int, word_l *[]*Word) {
 		w.HandleText()
 
 		if w.word != "start" {
-			w.x += 200 * rl.GetFrameTime()
+			w.x += 150 * rl.GetFrameTime()
 		} else {
 			w.x = (1600/2)-(float32(rl.MeasureText("start", 25))/2)
 			w.y = 900/2
@@ -101,7 +102,9 @@ func (w *Word) Draw(points *int, word_l *[]*Word) {
 		copy_w := *word_l
 		for i := range len(*word_l) {
 			if w.word == copy_w[i].word {
+				fmt.Println("BEFORE: ", len(*word_l))
 				*word_l = append(copy_w[:i], copy_w[i+1:]...)
+				fmt.Println("AFTER: ", len(*word_l))
 				break
 			}
 		}
@@ -127,6 +130,28 @@ func find_index(word_list *[]*Word, word *Word) int {
 	return -1
 }
 
+func randomize(max_range int, word_list *[]*Word, used_random *[]int, random_list *[]*Word) {
+	copy_word_list := *word_list
+	
+	for i := 0; i < max_range; i++ {
+		var random int = rand.IntN(len(*word_list))
+
+		for contains(used_random, random) {
+			random = rand.IntN(len(*word_list))
+		}
+
+		*random_list = append(*random_list, NewWord(copy_word_list[random].word))
+		*used_random = append(*used_random, random)
+	}
+}
+
+// func add_random(used_random *[]int, word_list *[]*Word, word_list_random []*Word) {
+// 	for i := range word_list_random {
+// 		r := find_index(word_list, word_list_random[i])
+// 		*used_random = append(*used_random, r)
+// 	}
+// }
+
 func main() {
 	var width int32 = 1600
 	var height int32 = 900
@@ -144,21 +169,13 @@ func main() {
 	var word_list_random []*Word
 	var used_random []int
 
-	for i := 0; i < len(word_list); i++ {
-		var random int = rand.IntN(len(word_list))
-
-		for contains(&used_random, random) {
-			random = rand.IntN(len(word_list))
-		}
-
-		word_list_random = append(word_list_random, word_list[random])
-		used_random = append(used_random, random)
-	}
+	randomize(len(word_list), &word_list, &used_random, &word_list_random)
 
 	var points int = 0
 	var started bool = false
 	var start *Word = NewWord("start")
 	var start_written bool = false
+	var first_time bool = true
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
@@ -177,35 +194,46 @@ func main() {
 			if start.letters[start.len-1].written { start_written = true }
 		} else {
 			// create more words
-			if len(word_list_random) < 2 {
+			if len(word_list_random) < 4 {
 				used_random = used_random[:0]
-				r := find_index(&word_list, word_list_random[0])
-				used_random = append(used_random, r)
-	
-				for i := 0; i < len(word_list)-1; i++ {
-					var random int = rand.IntN(len(word_list))
-	
-					for contains(&used_random, random) {
-						random = rand.IntN(len(word_list))
-					}
-	
-					word_list_random = append(word_list_random, NewWord(word_list[random].word))
-					used_random = append(used_random, random)
+				
+				for _, word := range word_list_random {
+					fmt.Println("BEFORE: ", word.x)
 				}
+				
+				for i := range word_list_random {
+					r := find_index(&word_list, word_list_random[i])
+					used_random = append(used_random, r)
+				}
+				
+				randomize(len(word_list)-len(used_random), &word_list, &used_random, &word_list_random)
+				fmt.Println("aqui2")
+				
 				started = false
 			}
-	
+			
 			// start at random posX
 			if !started {
 				var spacing float32 = 200
 				for i, w := range word_list_random {
-					if i > 0 {
-						// w.x -= 300 + float32(math.Abs(float64(word_list_random[i-1].x)))
-						w.x -= 300 + spacing
-						spacing += 200
+					if first_time {
+						if i > 0 {
+							w.x -= 300 + spacing
+							spacing += 200
+						}
+					} else {
+						if i > 3 {								
+							w.x -= 300 + spacing
+							spacing += 200
+						}
 					}
 				}
+				first_time = false
 				started = true
+
+				for _, word := range word_list_random {
+					fmt.Println("AFTER: ", word.x)
+				}
 			}
 	
 			// checks if outside screen
