@@ -1,9 +1,21 @@
 # typing-game
-## Download
 
- - [typing game v1.0](https://github.com/kylwrld/typing-game/releases/tag/v1.0)
+## How to use
 
+Clone the project
 
-# Releases
+```bash
+  git clone https://github.com/kylwrld/typing-game.git
+```
 
-https://github.com/kylwrld/typing-game/releases/
+Enter the directory
+
+```bash
+  cd typing-game
+```
+
+Run
+
+```bash
+  go build ./main.go 
+```
